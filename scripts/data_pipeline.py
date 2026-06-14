@@ -1,7 +1,7 @@
 import pandas as pd
 import eurostat
 
-# 1. Fetch Eurostat Data
+# Fetch Eurostat Data
 print("Fetching Eurostat Inflation Data...")
 # prc_hicp_midx is the Eurostat code for Harmonised index of consumer prices
 df_inflation = eurostat.get_data_df('prc_hicp_midx')
@@ -29,7 +29,7 @@ df_gdelt = pd.read_csv('gdelt_raw.csv')
 # The V2Tone column is a comma-separated string. The first number is the overall sentiment.
 df_gdelt['SentimentScore'] = df_gdelt['tone'].apply(lambda x: float(str(x).split(',')[0]) if pd.notnull(x) else 0)
 
-# Create a Year-Month column to link with Eurostat data (e.g., '2023-05')
+# Create a Year-Month column to link with Eurostat data
 df_gdelt['Month'] = df_gdelt['publish_date'].str[:7]
 
 # Extract the primary country and topic for simplicity in this prototype
@@ -40,7 +40,7 @@ df_gdelt['Country'] = np.where(df_gdelt['locations'].str.contains('NL'), 'NL',
 df_gdelt['Topic'] = np.where(df_gdelt['themes'].str.contains('INFLATION'), 'Inflation',
                     np.where(df_gdelt['themes'].str.contains('HOUSING'), 'Housing', 'Employment'))
 
-# We don't need every single article, we need the monthly aggregate for the graph
+# Create monthly aggregates for sentiment and article volume
 gdelt_monthly = df_gdelt.groupby(['Month', 'Country', 'Topic'])['SentimentScore'].agg(['mean', 'count']).reset_index()
 gdelt_monthly.rename(columns={'mean': 'AverageSentiment', 'count': 'ArticleVolume'}, inplace=True)
 

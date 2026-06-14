@@ -1,7 +1,7 @@
 import pandas as pd
 import eurostat
 
-# Define our target countries (Eurostat uses 'UK' for the United Kingdom)
+# Define our target countries 
 target_countries = ['NL', 'DE', 'FR', 'UK']
 
 def generate_employment_csv():
@@ -11,7 +11,7 @@ def generate_employment_csv():
     # Locate the exact name of the geo column
     geo_col = [c for c in df.columns if 'geo' in c.lower()][0]
     
-    # Filter for the "Total" population (preventing duplicate rows for different age/gender brackets)
+    # Filter for the "Total" population to prevent duplicate rows for different age/gender brackets
     if 'age' in df.columns:
         df = df[df['age'] == 'TOTAL']
     if 'sex' in df.columns:
@@ -21,7 +21,7 @@ def generate_employment_csv():
         
     df = df[df[geo_col].isin(target_countries)]
     
-    # Smart time column finder: Grab any column that starts with '20' (e.g., '2023-05', '2023M05')
+    # Smart time column finder
     time_cols = [c for c in df.columns if str(c).startswith('20')]
     df = df[[geo_col] + time_cols]
     
@@ -49,12 +49,12 @@ def generate_housing_csv():
     
     geo_col = [c for c in df.columns if 'geo' in c.lower()][0]
     
-    # Fix 1: Eurostat's actual code for 2015=100 is 'I15'
+    # Eurostat's actual code for 2015=100 is 'I15'
     if 'unit' in df.columns:
         if 'I15' in df['unit'].values:
             df = df[df['unit'] == 'I15']
             
-    # Fix 2: Ensure we are grabbing the 'TOTAL' housing market (not split by new/existing)
+    # Ensure we are grabbing the 'TOTAL' housing market (not split by new/existing)
     if 'purchase' in df.columns:
         df = df[df['purchase'] == 'TOTAL']
         
@@ -84,7 +84,6 @@ def generate_housing_csv():
     df_final.to_csv('eurostat_housing.csv', index=False)
     print(f"Success! Saved eurostat_housing.csv with {len(df_final)} rows.")
 
-# Execute the script
 if __name__ == "__main__":
     generate_employment_csv()
     generate_housing_csv()
